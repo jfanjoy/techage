@@ -191,15 +191,22 @@ function techage.register_plant(name)
 	Plants[name] = true
 end
 
+local function check_and_register_flower(name)
+	local mod = string.split(name, ":")[1]
+	if mod == "flowers" or mod == "bakedclay" then -- Bakedclay also registers flowers as decoration.
+		if not Ignore[name] then
+			techage.register_flower(name)
+		end
+	end
+end
 minetest.after(1, function()
 	for _,def in pairs(minetest.registered_decorations) do
 		local name = def.decoration
 		if name and type(name) == "string" then
-			local mod = string.split(name, ":")[1]
-			if mod == "flowers" or mod == "bakedclay" then -- Bakedclay also registers flowers as decoration.
-				if not Ignore[name] then
-					techage.register_flower(name)
-				end
+			check_and_register_flower(name)	
+		elseif name and type(name) == "table" then
+			for _,deco in pairs(name) do
+				if deco and type(deco) == "string" then check_and_register_flower(deco) end
 			end
 		end
 	end
